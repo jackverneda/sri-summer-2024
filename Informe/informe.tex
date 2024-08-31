@@ -1,46 +1,70 @@
 \documentclass[runningheads]{llncs}
-
+\usepackage{todonotes}
 \usepackage{amsmath}
 \usepackage{graphicx}
+\usepackage{url}
+\usepackage{hyperref} % Paquete para enlaces clicables
+\usepackage[spanish]{babel}
 
 \begin{document}
 
 \title{Sistema de Recomendación Secuencial usando Redes Neuronales Recursivas}
 \author{Jackson Vera Pineda \\ Kevin Manzano Rodríguez \\ Roger Fuentes Rodríguez}
 \institute{\url{https://github.com/jackverneda/sri-summer-2024}}
-% Remove the line \maketitle
 
 \maketitle
 
 \begin{abstract}
-Este informe describe la implementación de un sistema de recomendación secuencial basado en redes neuronales recurrentes (RNN) utilizando capas LSTM (Long Short-Term Memory). Este sistema tiene como objetivo predecir el siguiente ítem en el que un usuario podría estar interesado, basándose en sus interacciones anteriores. La capacidad de capturar dependencias temporales y la evolución de las preferencias del usuario a lo largo del tiempo son factores clave para mejorar la experiencia del usuario en plataformas de comercio electrónico y contenido. Además, se presenta una comparación entre la solución oficial basada en LSTM y una nueva solución propuesta que utiliza GRU (Gated Recurrent Units).
+Este informe describe la implementación de un sistema de recomendación secuencial basado en redes neuronales recurrentes (RNN) utilizando capas LSTM (Long Short-Term Memory) y GRU (Gated Recurrent Units) haciendo uso además de modelos de lenguaje para capturar la semántica de los productos en embeddings. Este sistema tiene como objetivo predecir el siguiente producto en el que un usuario podría estar interesado, basándose en sus interacciones anteriores.
 \keywords{Recomendación secuencial, Redes Neuronales Recursivas, LSTM, GRU, Deep Learning}
 \end{abstract}
 
 \section{Introducción}
 
-En la era del comercio electrónico y las plataformas de contenido, la capacidad de ofrecer recomendaciones personalizadas a los usuarios se ha convertido en un factor crucial para mejorar la experiencia del usuario y aumentar la retención. Un enfoque efectivo es predecir el siguiente ítem que un usuario podría interactuar basándose en su historial de interacciones pasadas. Este problema se conoce como ``recomendación secuencial", donde el objetivo es utilizar secuencias temporales de interacciones de usuarios para predecir sus futuras acciones.
+\space En la era del comercio electrónico y las plataformas de contenido, la capacidad de ofrecer recomendaciones personalizadas a los usuarios se ha convertido en un factor crucial para mejorar la experiencia del usuario y aumentar la retención. Un enfoque efectivo es predecir el siguiente producto que un usuario podría interactuar basándose en su historial de interacciones pasadas. Este problema se conoce como ``recomendación secuencial", donde el objetivo es utilizar secuencias temporales de interacciones de usuarios para predecir sus futuras acciones.
 
 El desafío principal en la recomendación secuencial es capturar las dependencias temporales y la evolución de las preferencias de los usuarios a lo largo del tiempo. Las Redes Neuronales Recursivas (RNN) y sus variantes, como LSTM (\textit{Long Short-Term Memory}) y GRU (\textit{Gated Recurrent Units}), han demostrado ser herramientas poderosas para modelar secuencias temporales debido a su capacidad para retener y procesar información a través de secuencias largas.
 
-\section{Descripción de la Solución}
+\section{Formulación del Problema}
 
-En esta solución, se emplea una red neuronal basada en LSTM para abordar el problema de la recomendación secuencial. El proceso se puede dividir en las siguientes etapas clave:
+Una tienda online de cosméticos requiere de un sistema de recomendación para sugerir productos de interés personal en un futuro a los usuarios, esto es un desafío debido a la gran cantidad de productos que posee y un número de clientes en constante crecimiento. Actualmente la tienda utiliza una búsqueda por coincidencias, esto es efectivo pero no tiene en cuenta sugerencias creativas. La tienda registra cada compra efectuada por el usuario, información valiosa que se dispone para la recomendación.
+
+\section{Propuesta de la Solución}
+
+Entre las soluciones conocidas figuran: Modelos Basados en Redes Neuronales Recursivas, Modelos Basados en Atención, Modelos Basados en Grafos y Modelos de Refuerzo. 
+
+Los Modelos Basados en Redes Neuronales Recursivas han demostrado ser especialmente efectivos para capturar dependencias temporales en secuencias de datos, lo que los hace adecuados para sistemas de recomendación secuencial \cite{goodfellow2016deep}. Un ejemplo destacado es el uso de redes neuronales recurrentes (RNN) para recomendaciones basadas en sesiones, como se describe en el trabajo de Hidasi et al. \cite{hidasi2016session}. Este enfoque utiliza variantes como GRU (Gated Recurrent Units) para mejorar la precisión de las recomendaciones basadas en el historial de interacciones de los usuarios. Además, la evaluación empírica de GRU en modelado secuencial ha mostrado resultados prometedores en comparación con LSTM \cite{chung2014empirical}.
+
+En este trabajo se brinda un enfoque similar a \cite{hidasi2016session} con diferencias en ciertos momentos del proceso. La principal diferencia con los modelos clásicos que utilizan el id del producto como entrada al modelo, es transformar este id en un vector de mayor dimensión dentro de un espacio de productos con relaciones implicitas entre ellos. La semántica de este espacio está dada por los nombres de los productos para que se asemeje al lenguaje natural. Por lo tanto para transformar los productos en vectores de este espacio se propone utilizar un modelo de embeddings. De esta forma si se quiere un espacio de productos de dimensión $n$, el título de un producto se convertiría en un vector de dimensión $n$ y este sería la re representación en el espacio. 
+
+Además este tipo de problemas se trata como un problema de clasificación donde la salida de la red neuronal es un vector de probabilidades cuya dimensión es la cantidad de productos pero, para una cantidad grande de datos se hace costoso el computo. Por tanto en el presente se propone el uso de una regresión porque es más liviana con el riesgo de que el vector resultante no exista como producto, y sea necesario buscar el más cercano.
+
+\section{Implementación de la Solución}
+
+En esta solución, se emplea una red neuronal basada en LSTM y GRU para abordar el problema de la recomendación secuencial. El proceso se puede dividir en las siguientes etapas clave:
+
+\subsection{Fuente de los Datos}
+
+El sitio \url{https://amazon-reviews-2023.github.io/} es un dataset donde se registra los reviews de los usuarios a productos de Amazon. Tiene los reviews de los años $2023$, $2018$ y $2014$, utilizamos de la más reciente la categoría \texttt{all beauty} que posee cerca de $31.6$ millones y $112.6$ mil de productos. Consideramos este sitio porque es c\'omodo la forma en la que se almacenan la relaci\'on usuario-review-producto. Se arma la secuencia para cada usuario de los productos referenciados en orden cron\'ologico. Como consideraci\'on se piensa que los datos no describen bien el comportamiento real, porque la media de los usuarios que compran productos no sienten la necesidad de dejar review, solamente los casos extremos donde se sienten o bien muy satisfechos, o muy inconformes esto produce un sesgo.
 
 \subsection{Preparación de Datos}
 
-\begin{itemize}
-    \item \textbf{Carga y Preprocesamiento:} Los datos se cargan desde un archivo CSV que contiene las características de los ítems (\texttt{emb.csv}) y un archivo JSON que contiene secuencias de interacciones de usuarios (\texttt{seq.json}). Cada secuencia representa un historial de ítems con los que un usuario ha interactuado.
-    \item \textbf{Padding de Secuencias:} Dado que las secuencias de interacciones de los usuarios pueden variar en longitud, se aplica un proceso de \textit{padding} para normalizar estas secuencias a una longitud fija. Esto asegura que todas las secuencias tengan la misma longitud antes de ser procesadas por la red neuronal.
-    \item \textbf{Generación de Conjuntos de Datos:} A partir de las secuencias, se generan los conjuntos de entrenamiento y prueba. Cada entrada $X$ en el conjunto de datos contiene los dos primeros ítems de una secuencia, y la etiqueta $y$ corresponde al tercer ítem de la secuencia, el cual se desea predecir.
-\end{itemize}
+Una vez descargados los datos se cargan desde los archivos \texttt{All\_Beauty.json} y \texttt{meta\_All\_Beauty.json} que contienen las interacciones de los usuarios y la información de los productos, respectivamente. Esta información es almacenada en \texttt{DataFrame} de la biblioteca de \texttt{pandas}, estructura de datos \'util para la manipulaci\'on de datos tabulares.
+
+Las secuencias son listas de reviews hechas por un usuario. Para conformarlas se extraen datos de la tabla de las interacciones, se agrupan por el id del usuario \texttt{userid} y se ordenan cronol\'ogicamente.
+
+Los datos se cargan desde un archivo CSV que contiene las características de los productos (\texttt{emb.csv}) y un archivo JSON que contiene secuencias de interacciones de usuarios (\texttt{seq.json}). Cada secuencia representa un historial de productos con los que un usuario ha interactuado. \todo{ajustar}
+
+Las redes neuronales recurrentes necesitan que las entradas tengan la misma dimensión. Dado que las secuencias de interacciones de los usuarios pueden variar en longitud, se aplica un proceso de \textit{padding} para normalizar estas secuencias a una longitud fija. Esto asegura que todas las secuencias tengan la misma longitud antes de ser procesadas por la red neuronal. \todo{agregar el proceso de padding de agregar 0s}
+
+A partir de las secuencias, se generan los conjuntos de entrenamiento y prueba. Cada secuencia $X$ en el conjunto de datos contiene 3 elementos, los dos primeros se entran a la red, y el tercero sería la salida ideal (predicción).
 
 \subsection{Construcción del Modelo}
 
 \begin{itemize}
-    \item \textbf{Red Neuronal Recursiva:} Se utiliza una arquitectura basada en LSTM, que incluye una capa de \textit{embedding} para convertir los identificadores de ítems en vectores densos de tamaño 128. Esto permite que el modelo capture las relaciones entre ítems de manera más efectiva.
+    \item \textbf{Red Neuronal Recursiva:} Se utiliza una arquitectura basada en LSTM, que incluye una capa de \textit{embedding} para convertir los identificadores de productos en vectores densos de tamaño 128. Esto permite que el modelo capture las relaciones entre productos de manera más efectiva.
     \item \textbf{Capas LSTM y Dropout:} La red incluye dos capas LSTM con 256 unidades cada una. La primera capa LSTM devuelve la secuencia completa de salidas mientras que la última capa LSTM devuelve solo el último estado oculto. Después de cada capa LSTM, se aplica un \textit{dropout} con una tasa de 0.3 para reducir el riesgo de sobreajuste.
-    \item \textbf{Capa de Salida:} La capa final es una capa densa con activación \textit{softmax}, que genera una distribución de probabilidad sobre los 112590 ítems. Esto permite predecir cuál será el siguiente ítem en la secuencia de interacción del usuario.
+    \item \textbf{Capa de Salida:} La capa final es una capa densa con activación \textit{softmax}, que genera una distribución de probabilidad sobre los 112590 productos. Esto permite predecir cuál será el siguiente producto en la secuencia de interacción del usuario.
 \end{itemize}
 
 \subsection{Entrenamiento y Evaluación del Modelo}
@@ -73,7 +97,7 @@ A continuación, se presenta una comparación entre la solución oficial basada 
 \subsection{Resultados Empíricos}
 
 \begin{itemize}
-    \item \textbf{Solución Oficial (LSTM):} En las pruebas realizadas, la solución con LSTM mostró una alta precisión en la predicción de los ítems, especialmente en secuencias largas, aunque a costa de un tiempo de entrenamiento mayor.
+    \item \textbf{Solución Oficial (LSTM):} En las pruebas realizadas, la solución con LSTM mostró una alta precisión en la predicción de los productos, especialmente en secuencias largas, aunque a costa de un tiempo de entrenamiento mayor.
     
     \item \textbf{Solución Propuesta (GRU):} La solución GRU alcanzó resultados similares en términos de precisión, pero con un tiempo de entrenamiento menor y un uso de memoria más eficiente, lo que puede ser ventajoso en entornos de producción con recursos limitados.
 \end{itemize}
@@ -81,5 +105,22 @@ A continuación, se presenta una comparación entre la solución oficial basada 
 \section{Conclusión}
 
 La comparación entre la solución basada en LSTM y la solución propuesta con GRU destaca que ambas tienen sus fortalezas y debilidades. La solución con LSTM es más robusta para capturar dependencias a largo plazo, pero a un mayor costo computacional. Por otro lado, la solución con GRU es más eficiente y rápida, haciendo un buen compromiso entre rendimiento y consumo de recursos. La elección entre una y otra dependerá de las necesidades específicas del entorno de producción y de los recursos disponibles.
+
+\begin{thebibliography}{9}
+
+\bibitem{hidasi2016session} 
+Balázs Hidasi, Alexandros Karatzoglou, Linas Baltrunas y Domonkos Tikk.
+\textit{Session-based Recommendations with Recurrent Neural Networks}. 
+Proceedings of the 4th International Conference on Learning Representations (ICLR 2016). Recuperado de \url{https://arxiv.org/abs/1511.06939}
+
+\bibitem{goodfellow2016deep} 
+Ian Goodfellow, Yoshua Bengio y Aaron Courville.
+\textit{Deep Learning}. MIT Press, 2016. Disponible en \url{https://www.deeplearningbook.org/}
+
+\bibitem{chung2014empirical} 
+Junyoung Chung, Çaglar Gülçehre, KyungHyun Cho y Yoshua Bengio.
+\textit{Empirical Evaluation of Gated Recurrent Neural Networks on Sequence Modeling}. arXiv preprint arXiv:1412.3555, 2014. Recuperado de \url{https://arxiv.org/abs/1412.3555}
+
+\end{thebibliography}
 
 \end{document}
