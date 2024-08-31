@@ -1,0 +1,22 @@
+<div class="w-4/5 container flex flex-col">
+  <div class="w-full mb-4">
+    <span class="text-base">Todos los productos que necesitas.</span>
+    <h1 class="uppercase font-bold">Disponibles</h1>
+  </div>
+</div>
+<div class="w-full">
+  <swiper-container navegation="true" autoplay speed="1000" loop="true" slides-per-view="auto" space-between="15" free-mode="true">
+    @for (data of dataImagesU; track $index) {
+      <swiper-slide class="w-auto h-96">
+        <img class="swiper-lazy rounded-lg" [src]="data.images[0]?.large" />
+      </swiper-slide>
+    }
+  </swiper-container>
+  <swiper-container speed="1000" autoplay loop="true" dir="rtl" slides-per-view="auto" space-between="15" free-mode="true">
+    @for (data of dataImagesD; track $index) {
+      <swiper-slide class="w-auto h-96">
+        <img class="swiper-lazy rounded-lg" [src]="data.images[0]?.large" />
+      </swiper-slide>
+    }
+  </swiper-container>
+</div>

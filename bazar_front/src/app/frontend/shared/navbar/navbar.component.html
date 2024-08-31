@@ -1,0 +1,55 @@
+<nav class="nav" [ngClass]="topOfPage() ? 'absolute' : 'black-shadow sticky-top'">
+  <mat-toolbar>
+    <div class="container flex flex-row w-4/5 justify-between mx-auto">
+      <button class="logo" [ngClass]="topOfPage() ? '' : 'little-logo'" aria-label="Logo Icon">
+        <img [routerLink]="['/home']" class="image" src="../../../assets/images/logo/bazar-b.svg" alt="Logo IMG" />
+      </button>
+
+      <div class="xs-hide flex flex-row items-center justify-between min-w-1/2">
+        @for (page of directory; track page) {
+          @if (page.permissions) {
+            <button mat-button class="nav-link mr-2rem" aria-label="Link" [routerLink]="[page.link]" [routerLinkActive]="'select'">
+              {{ page.name | uppercase }}
+            </button>
+          }
+        }
+        <button (click)="goToSearch()" mat-icon-button aria-label="search-button">
+          <mat-icon>search</mat-icon>
+        </button>
+        @if (user) {
+          <button class="flex flex-row btn-stroked" [matMenuTriggerFor]="menu" mat-stroked-button aria-label="search-button">
+            <mat-icon>verified</mat-icon>
+            <span>{{ user.email }}</span>
+          </button>
+          <mat-menu #menu="matMenu" class="matMenu">
+            <button mat-menu-item class="text-center" disabled>
+              <span>{{ user.email }}</span>
+            </button>
+            <button mat-menu-item [routerLink]="['/frontend/profile/history']">
+              <mat-icon>history</mat-icon>
+              <span>Historial de Reservas</span>
+            </button>
+            <button mat-menu-item (click)="logout()">
+              <mat-icon>logout</mat-icon>
+              <span>Salir</span>
+            </button>
+          </mat-menu>
+        }
+        @if (!user) {
+          <button class="flex flex-row btn-stroked" mat-stroked-button (click)="goToRegister()" mat-button aria-label="search-button">
+            <mat-icon>account_circle</mat-icon>
+            <span>Registrarse</span>
+          </button>
+        }
+      </div>
+      <div class="gt-hide">
+        <!-- <button mat-icon-button [matMenuTriggerFor]="menu">
+          <mat-icon>menu</mat-icon>
+        </button> -->
+        <button mat-icon-button (click)="toggleDrawer()">
+          <mat-icon>menu</mat-icon>
+        </button>
+      </div>
+    </div>
+  </mat-toolbar>
+</nav>

@@ -1,0 +1,42 @@
+@import '../../../assets/css/material.scss';
+
+.container-left {
+  img {
+    @apply w-full h-full;
+    object-fit: cover;
+    object-position: center;
+  }
+}
+.container-right {
+  img {
+    @apply max-h-24;
+    border-radius: 50px;
+    object-fit: cover;
+    object-position: center;
+  }
+}
+
+.selected {
+  background-color: #eb2228;
+  transition: background-color 1s ease;
+}
+
+.link {
+  @apply flex flex-row items-center mb-4;
+  transition: background-color 1s ease;
+  border-radius: 50px;
+  padding: 0 20px 0 0;
+  cursor: pointer;
+
+  .icon {
+    @apply flex flex-col justify-center items-center mr-4;
+    mat-icon {
+      font-size: 2.25rem;
+      width: 2.25rem;
+      height: 2.25rem;
+    }
+    padding: 20px;
+    background-color: #eb2228;
+    border-radius: 50px;
+  }
+}
