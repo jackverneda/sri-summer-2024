@@ -1,42 +1,3 @@
-import pandas as pd
-import numpy as np
-import json
-import sklearn
-
-df = pd.read_csv('/content/drive/MyDrive/Colab Notebooks/beauty2vec.csv')
-df.head()
-
-items = df.reset_index()
-items = items.set_index('parent_asin')
-items.head()
-
-
-with open('/content/drive/MyDrive/Colab Notebooks/seq.json', 'r') as f:
-  seqs = json.load(f)
-# print(seqs)
-
-
-def padding(items: list, n: int = 3):
-    padded_embeddings = np.full(n, -1)
-    seq_len = min(len(items), n)
-    padded_embeddings[n-seq_len:] = items[-seq_len:]
-    return padded_embeddings
-
-
-raw_data = [[items.loc[p['parent_asin']]['index'] for p in seq if p['parent_asin']] for _,seq in seqs.items()]
-print(raw_data[0][0])
-# raw_data = tf.keras.utils.pad_sequences(raw_data, maxlen=3)
-raw_data = [padding(seq) for seq in raw_data]
-
-from sklearn.model_selection import train_test_split
-
-X = np.array([seq[:2] for seq in raw_data])
-y = np.array([np.zeros(112590) for seq in raw_data])
-for i,seq in enumerate(raw_data):
-  y[i][seq[2]]
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Embedding, LSTM, Dense, Dropout
@@ -79,5 +40,3 @@ print(f"Test Loss: {loss}, Test Accuracy: {accuracy}")
 
 # Predicción del siguiente ítem
 # next_item = model.predict(test_sequence)
-
-
