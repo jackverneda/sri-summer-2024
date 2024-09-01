@@ -28,10 +28,10 @@ def train_rnn():
   """
   Train a recurrent neural network model.
   """
-  ppoints = pd.read_csv('/content/drive/MyDrive/Colab Notebooks/emb.csv').T
+  ppoints = pd.read_csv('../data//emb.csv').T
   ppoints = ppoints.iloc[1:]
 
-  with open('/content/drive/MyDrive/Colab Notebooks/seq.json', 'r') as f:
+  with open('../data/seq.json', 'r') as f:
     seqs = json.load(f)
 
   raw_data = [[np.array(ppoints.loc[p['parent_asin']]) for p in seq if p['parent_asin']] for _,seq in seqs.items()]
@@ -44,11 +44,10 @@ def train_rnn():
   X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
   model = Sequential([
-      GRU(512, return_sequences=False, input_shape=(2, 312)),  
-      # LSTM(512, return_sequences=False),  
-      
-      # La salida es otro embedding de tamaño 312
-      Dense(312)  
+    GRU(312, return_sequences=True, input_shape=(2, 312), dropout=0.2),  # Ejemplo con secuencias de longitud 10
+    LSTM(312, return_sequences=True, dropout=0.2),  # Ejemplo con secuencias de longitud 10
+    GRU(312),
+    Dense(312, activation='linear') 
   ])
 
   # Compilar el modelo
@@ -60,3 +59,28 @@ def train_rnn():
   # print(f'Test Loss: {test_loss}, Test MAE: {test_mae}, Test MSE: {test_mse}')
 
   model.save('all_beauty-embedding_rnn.keras')
+
+def knn_accuracy(y_true, y_pred, _knn_model, df_index):
+    correct_predictions = 0
+    print(len(y_true))
+    total_predictions = len(y_true)
+
+    for i in range(total_predictions):
+        # if i%1000 == 0:
+        #   print(i)
+
+        # Encontrar los 10 vectores más cercanos con el modelo KNN
+        _, knn_prediction = _knn_model.kneighbors([y_pred[i]])
+        _, knn_true = _knn_model.kneighbors([y_true[i]])
+
+        # Obtener los códigos de los productos predichos
+        token = df_index.index[df_index['index'] == knn_true[0][0]][0]
+        codes = [df_index.index[df_index['index'] == index][0] for index in knn_prediction[0]]
+
+        # Verificar si la respuesta esperada está entre los 10 vectores más cercanos
+        if token in codes:
+            correct_predictions += 1
+
+    # Calcular la accuracy
+    accuracy = correct_predictions / total_predictions
+    return accuracy

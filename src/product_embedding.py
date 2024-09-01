@@ -24,7 +24,7 @@ def get_embeddings():
   - Utiliza un modelo pre-entrenado para calcular los embeddings de los títulos.
   - Los embeddings se guardan en un archivo llamado 'emb.csv' en el directorio actual.
   """
-  df = pd.read_csv('beauty2vec.csv')
+  df = pd.read_csv('../data/beauty2vec.csv')
   df['title'] =  df['title'].astype(str)
   embeddings = []
 
@@ -36,4 +36,4 @@ def get_embeddings():
 
   mapper = { key: list(emb) for key, emb in embeddings}
   dict_emb = pd.DataFrame(mapper)
-  dict_emb.to_csv('emb.csv')
+  dict_emb.to_csv('../data/emb.csv')

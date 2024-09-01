@@ -32,7 +32,7 @@ model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=
 model.summary()
 
 # Entrenamiento del modelo (suponiendo que ya tienes los datos)
-model.fit(X_train, y_train, epochs=10, batch_size=32, validation_split=0.2)
+history = model.fit(X_train, y_train, epochs=10, batch_size=32, validation_split=0.2)
 
 # Evaluación del modelo
 loss, accuracy = model.evaluate(X_test, y_test)
