@@ -1,0 +1,35 @@
+<div class="container w-4/5 flex flex-col">
+  <div class="flex flex-row mt-32">
+    <button mat-stroked-button class="btn-stroked">
+      <mat-icon>chevron_left</mat-icon>
+      <span routerLink="/frontend/home">Inicio</span>
+    </button>
+  </div>
+  <div class="flex flex-row justify-center">
+    <h1 class="uppercase font-bold">Perfil de {{ 'Usuario' }}</h1>
+  </div>
+  <span class="text-end mt-16">{{ projection?.date | date }}</span>
+  <h1 class="text-center">{{ projection?.movie?.name }}</h1>
+
+  <div class="flex flex-row justify-between mb-16">
+    <div class="w-1/4 container-left flex flex-col">
+      <a class="link" [routerLink]="['/frontend/profile']" routerLinkActive="selected">
+        <div class="icon">
+          <mat-icon class="text-xl w-5">badge</mat-icon>
+        </div>
+        <span class="">Informacion General</span>
+      </a>
+      <a class="link" [routerLink]="['/frontend/profile/history']" routerLinkActive="selected">
+        <div class="icon">
+          <mat-icon class="text-xl w-5">history</mat-icon>
+        </div>
+        <span class="">Historial de Reservas</span>
+      </a>
+    </div>
+    <div class="w-[70%] container-right">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+  <hr />
+</div>
+<app-contact></app-contact>

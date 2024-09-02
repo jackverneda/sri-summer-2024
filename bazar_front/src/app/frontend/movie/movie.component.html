@@ -1,0 +1,43 @@
+<div class="container w-4/5 flex flex-col">
+  <div class="flex flex-row mt-32">
+    <button mat-stroked-button class="btn-stroked">
+      <mat-icon>chevron_left</mat-icon>
+      <span routerLink="/frontend/home">Inicio</span>
+    </button>
+  </div>
+  <div class="flex flex-row justify-between my-16">
+    <div class="w-1/2 container-left flex flex-wrap">
+      @for (image of product.images;  track image) {
+        <img [src]="image.large" alt="" />
+      }
+    </div>
+    <div class="w-5/12 container-right">
+      <div class="flex flex-row w-full">
+        <h2>{{product.title}}</h2>
+      </div>
+      <div class="flex flex-row m-4">
+        <mat-chip-set dkDropListOrientation="horizontal">
+          @for (tag of product.details; track tag) {
+            <mat-chip>{{tag[0]}}: {{tag[1]}}</mat-chip>
+          }
+          <!-- @for (genre of movie.genres; track genre) {
+            <mat-chip>{{ genre.name }}</mat-chip>
+          }
+          <mat-chip>{{ movie.premiere | date: 'yyyy' }}</mat-chip>
+          <mat-chip>{{ movie.duration | duration }}</mat-chip> -->
+        </mat-chip-set>
+      </div>
+      <div>
+        <p [innerHTML]="product.description" class="text-justify"></p>
+      </div>
+      <div class="flex-row w-full" (click)="onBuyProduct()">
+        <button mat-stroked-button class="btn-stroked">
+          <span>Comprar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <hr />
+  <!-- <app-movie-rooms [rooms]="projection"></app-movie-rooms> -->
+</div>
+<app-contact></app-contact>

@@ -1,0 +1,35 @@
+<div class="flex flex-col my-6 justify-stretch">
+  @for (item of data; track $index) {
+    <div class="flex flex-row justify-between border-solid border-white border-2 px-4 py-2 rounded-lg">
+      <div class="container-image">
+        <img class="h-full" [src]="item?.projection?.movie.coverURL" alt="" />
+      </div>
+      <div class="container-text">
+        <div class="flex flex-row items-center justify-between">
+          <h2>
+            {{ item?.projection?.movie.name }}
+            <span class="text-gray-500">{{ item?.projection?.movie.premiere | date: 'yyyy' }}</span>
+          </h2>
+          <div>
+            <span>Asiento: {{ char(item.seat.row) }}{{ item.seat.colum }}</span>
+          </div>
+        </div>
+        <div class="flex flex-row">
+          <mat-chip-set dkDropListOrientation="horizontal">
+            <mat-chip>{{ item?.projection?.movie.duration | duration }}</mat-chip>
+            <!-- <mat-chip>{{ item?.projection?.movie.directors[0].firstname | duration }} {{ item?.movie.directors[0].lastname }}</mat-chip>
+            <mat-chip>{{ item?.projection?.movie.actors[0].firstname | duration }} {{ item?.movie.actors[0].lastname }}</mat-chip>
+            <mat-chip>{{ item?.projection?.movie.genres[0].name | duration }}</mat-chip> -->
+          </mat-chip-set>
+        </div>
+        <p>{{ item?.projection?.movie.summary }}</p>
+      </div>
+      <div class="m-4 border-solid border-white border-l"></div>
+      <div class="container-date">
+        <p>{{ item?.projection?.date | date }}</p>
+        <p>{{ item?.projection?.date | date: 'shortTime' }}</p>
+      </div>
+    </div>
+    <hr class="my-6" />
+  }
+</div>

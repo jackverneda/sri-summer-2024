@@ -1,0 +1,40 @@
+<div class="flex flex-col my-6 justify-stretch">
+  @for (item of data_; track $index) {
+    <div class="flex flex-row justify-between" (click)="onNavigate(item.parent_asin)" >
+      <div class="container-image">
+        <img class="h-full" [src]="item.images[0].large" alt="" />
+      </div>
+      <div class="m-4 border-solid border-white border-l"></div>
+      <div class="container-text">
+        <div class="flex flex-row items-center justify-between">
+          <!-- <h2> -->
+            <!-- {{ item.name }} -->
+            <!-- <span class="text-gray-500">{{ item.premiere | date }}</span> -->
+          <!-- </h2> -->
+          <div>
+            @for (_ of rates; track $index) {
+              @if ($index < item.rating_number) {
+                <mat-icon> grade_outlined </mat-icon>
+              }
+            }
+          </div>
+        </div>
+        <div class="flex flex-row">
+          <mat-chip-set dkDropListOrientation="horizontal">
+            @for(tag of item.details; track $index){
+              @if($index < 4){
+                <mat-chip>{{tag}}</mat-chip>
+              }
+            }
+          </mat-chip-set>
+        </div>
+        <p>{{ item.title }}</p>
+      </div>
+      
+      <!-- <div class="container-date">
+        <p>{{ item.premiere | date }}</p>
+      </div> -->
+    </div>
+    <hr class="my-6" />
+  }
+</div>

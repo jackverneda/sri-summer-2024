@@ -1,0 +1,155 @@
+// Custom Theming for Angular Material
+// For more information: https://material.angular.io/guide/theming
+@use '@angular/material' as mat;
+// Plus imports for other components in your app.
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+@import 'assets/css/themes/theme.scss';
+@import 'ngx-toastr/toastr';
+// Include the common styles for Angular Material. We include this here so that you only
+// have to load a single css file for Angular Material in your app.
+// Be sure that you only ever include this mixin once!
+@include mat.core();
+
+// Define the palettes for your theme using the Material Design palettes available in palette.scss
+// (imported above). For each palette, you can optionally specify a default, lighter, and darker
+// hue. Available color palettes: https://material.io/design/color/
+$cinemax-front-primary: mat.define-palette($cinemax-red);
+$cinemax-front-accent: mat.define-palette($cinemax-red, A100, A200, A400);
+$cinemax-front-warn: mat.define-palette(mat.$red-palette);
+
+// Create the theme object. A theme consists of configurations for individual
+// theming systems such as "color" or "typography".
+$cinemax-front-theme: mat.define-light-theme(
+  (
+    color: (
+      primary: $cinemax-front-primary,
+      accent: $cinemax-front-accent,
+      warn: $cinemax-front-warn,
+    ),
+    typography:
+      mat.define-typography-config(
+        $font-family: Montserrat,
+      ),
+    density: 0,
+  )
+);
+
+// Include theme styles for core and each component used in your app.
+// Alternatively, you can import and @include the theme mixins for each component
+// that you are using.
+@include mat.all-component-themes($cinemax-front-theme);
+// @include mat.button-theme($cinemax-front-theme);
+/* You can add global styles to this file, and also import other style files */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply bg-white text-black;
+    font-family: 'Montserrat', sans-serif;
+    h1 {
+      font-size: 32px;
+    }
+    h2 {
+      font-size: 24px;
+    }
+  }
+  .container {
+    margin-right: auto;
+    margin-left: auto;
+    position: relative;
+  }
+
+  @media (min-width: 576px) {
+    .container {
+      max-width: 540px;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .container {
+      max-width: 720px;
+    }
+  }
+
+  @media (min-width: 992px) {
+    .container {
+      max-width: 960px;
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .container {
+      max-width: 1140px;
+    }
+  }
+  .loading-shade {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 56px;
+    right: 0;
+    background: rgba(0, 0, 0, 0.15) !important;
+    z-index: 1024;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .loading-shade-full {
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    left: 0;
+    bottom: 56px;
+    right: 0;
+    background: rgba(0, 0, 0, 0.48) !important;
+    z-index: 1024;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .navList {
+    /* margin-top: 8px !important; */
+    // height: 82vh !important;
+    min-height: 77vh;
+    max-height: 94% !important;
+    width: 100%;
+    overflow: auto;
+    box-sizing: border-box !important;
+    padding: 16px 16px;
+    // background-color: #f5f5f5 !important;
+    // margin: 0px 8px;
+  }
+  .menu-list-item {
+    @apply p-4;
+  }
+  *,
+  ::after,
+  ::before {
+    border-style: initial;
+  }
+  .paid,
+  .reserved {
+    width: 115px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: bold;
+    text-align: center;
+    background-color: #388e3c;
+  }
+  .reserved {
+    background-color: #d0ca1e;
+  }
+}
+
+// html,
+// body {
+//   height: 100%;
+// }
+body {
+  margin: 0;
+  // font-family: Roboto, 'Helvetica Neue', sans-serif;
+}

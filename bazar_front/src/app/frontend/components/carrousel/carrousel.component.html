@@ -1,0 +1,18 @@
+<div class="flex flex-col w-4/5 mx-auto my-16">
+  <div class="mt-16 mb-6">
+    <span class="text-base">Creemos que podría</span>
+    <h1 class="uppercase font-bold">Interesarte</h1>
+  </div>
+  <div class="flex flex-row">
+    <swiper-container id="carrousel-home" space-between="45" slides-per-view="4" class="banner-swiper">
+      @for (item of data; track $index) {
+        <swiper-slide (click)="onNavigateMovie(item)" class="cursor-pointer">
+          <img class="swiper-lazy w-96" [src]="item.images[0].large" />
+        </swiper-slide>
+      }
+    </swiper-container>
+  </div>
+  <div class="flex fle-row my-6 justify-center">
+    <!-- <button mat-stroked-button class="btn-stroked" router>VER CARTELERA</button> -->
+  </div>
+</div>
