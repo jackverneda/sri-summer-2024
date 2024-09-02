@@ -43,15 +43,15 @@ En este trabajo, proponemos un enfoque similar al de Hidasi et al. \cite{hidasi2
 
 Para la problemática de este trabajo, la semántica de este espacio vectorial está determinada por los nombres de los productos, lo que permite que se asemeje al lenguaje natural. Por lo tanto bastará con seleccionar un Modelo de Embeddings entrenados para transformar oraciones de lenguaje natural a vectores numéricos de alguna dimensión.
 
-Este enfoque se distingue ligeramente de otros trabajos como \todo{Citar varios papers acá}, donde los embeddings de los IDs de los productos se generan dentro de la red neuronal en las primeras capas, comúnmente denominadas Capas de Embeddings \todo{Verificar el nombre exacto de la capa en la literatura y confirmar}. En teoría, este enfoque permite que la red neuronal ajuste el espacio de productos de acuerdo a las características de los datos de entrenamiento, lo que resulta en un espacio con una semántica implícita, inducida por la red y que no es directamente interpretable en relación con el problema real.
+Este enfoque se distingue ligeramente de otros trabajos como \cite{chung2014empirical,tang2018personalized}, donde los embeddings de los IDs de los productos se generan dentro de la red neuronal en las primeras capas, comúnmente denominadas Capas de Embeddings. En teoría, este enfoque permite que la red neuronal ajuste el espacio de productos de acuerdo a las características de los datos de entrenamiento, lo que resulta en un espacio con una semántica implícita, inducida por la red y que no es directamente interpretable en relación con el problema real.
 
 En contraste, la propuesta de utilizar un modelo de embeddings preexistente permite que el espacio de productos sea más fácil de interpretar en un contexto real. Por ejemplo, agrupaciones de vectores en este espacio podrían representar categorías de artículos, colores, materiales u otras clasificaciones similares, facilitando así su análisis y comprensión.
 
 Todo sistema de recomendación debe ser evaluado para determinar su efectividad a priori. Dado que la solución propuesta incorpora ideas innovadoras basadas en enfoques ya conocidos, se implementará también una solución basada en uno de estos enfoques tradicionales. Además de emplear métricas reconocidas, otra forma de evaluar el modelo propuesto será mediante la comparación directa con esta implementación adicional.
 
-Además \todo{Este párrafo hay que cambiarlo, tengo que pensar cómo arreglarlo} este tipo de problemas se trata como un problema de clasificación donde la salida de la red neuronal es un vector de probabilidades cuya dimensión es la cantidad de productos pero, para una cantidad grande de datos se hace costoso el computo. Por tanto en el presente se propone el uso de una regresión porque es más liviana con el riesgo de que el vector resultante no exista como producto, y sea necesario buscar el más cercano.
+Además este tipo de problemas se trata como un problema de clasificación donde la salida de la red neuronal es un vector de probabilidades cuya dimensión es la cantidad de productos pero, para una cantidad grande de datos se hace costoso el computo. Por tanto en el presente se propone el uso de una regresión porque es más liviana con el riesgo de que el vector resultante no exista como producto, y sea necesario buscar el más cercano.
 
-La implementación de la solución conllevó varias etapas de desarrollo en un orden fundamentalmente lineal.\todo{Mejorar este párrafo} En las siguientes secciones se describe detalladamente cada etapa de este proceso.
+La implementación de la solución involucró múltiples etapas de desarrollo que inicialmente siguieron un enfoque lineal. Sin embargo, a medida que el proyecto avanzaba, fue necesario volver a etapas anteriores para realizar ajustes y mejoras. A continuación, se describen en detalle cada una de estas etapas.
 
 \section{Construcción de los Conjuntos de Datos}
 
@@ -63,7 +63,7 @@ El Conjunto B, compuesto por secuencias de interacciones usuario-producto, se ba
 
 \subsection{Conjunto A}
 
-Aunque era posible crear un conjunto de datos artificial para esta problemática, el equipo decidió trabajar con datos reales de una entidad existente para familiarizarse con la calidad de los datos en escenarios más cercanos a la realidad. Tras una búsqueda exhaustiva, y dado que los datos de mayor calidad suelen ser de pago o de acceso restringido, se optó por utilizar los datos públicos disponibles de productos de Amazon, encontrados en el sitio Amazon Reviews 2023 \todo{Citar}. Este recurso contiene información sobre productos de Amazon y las revisiones que los usuarios han hecho a algunos de ellos, con datos disponibles de los años 2023, 2018, 2014 y 2013.
+Aunque era posible crear un conjunto de datos artificial para esta problemática, el equipo decidió trabajar con datos reales de una entidad existente para familiarizarse con la calidad de los datos en escenarios más cercanos a la realidad. Tras una búsqueda exhaustiva, y dado que los datos de mayor calidad suelen ser de pago o de acceso restringido, se optó por utilizar los datos públicos disponibles de productos de Amazon, encontrados en el sitio Amazon Reviews 2023 \cite{amazonreviews}. Este recurso contiene información sobre productos de Amazon y las revisiones que los usuarios han hecho a algunos de ellos, con datos disponibles de los años 2023, 2018, 2014 y 2013.
 
 Para construir el sistema de recomendación, era necesario contar con datos válidos para entrenar el algoritmo de Machine Learning, especialmente historiales de interacciones de usuarios con productos. Debido a esto, las revisiones de usuarios sobre productos que habían comprado se utilizaron como una representación de los historiales de interacciones. Es importante tener en cuenta que el uso de estos datos implica ciertos sesgos, basados en las siguientes suposiciones realizadas por el equipo:
 \begin{enumerate}
@@ -80,7 +80,7 @@ A pesar de estos posibles sesgos y limitaciones, se decidió utilizar este conju
 
 \subsection{Conjunto B}
 
-Para mejorar la calidad de los datos, se utilizó Amazon Beauty Products, un conjunto de datos de acceso libre disponible en la red social de analistas de datos Kaggle \todo{Citar el sitio https://www.kaggle.com/datasets/satrapankti/amazon-beauty-product-recommendation}. Este conjunto contiene registros de más de 2 millones de compras de productos de belleza en Amazon, proporcionando interacciones usuario-producto basadas en historiales de compra, lo que representa información más valiosa y completa en comparación con la obtenida en el Conjunto A.
+Para mejorar la calidad de los datos, se utilizó Amazon Beauty Products, un conjunto de datos de acceso libre disponible en la red social de analistas de datos Kaggle \cite{amazonsales}. Este conjunto contiene registros de más de 2 millones de compras de productos de belleza en Amazon, proporcionando interacciones usuario-producto basadas en historiales de compra, lo que representa información más valiosa y completa en comparación con la obtenida en el Conjunto A.
 
 No obstante, los datos de Amazon Beauty Products no incluyen los nombres de los productos, así como otros detalles que estaban presentes en el Conjunto A. Sin embargo, cada producto tiene su ID de Amazon, lo que permite complementar la información utilizando la base de datos Amazon Reviews 2023. Teóricamente, al combinar ambas bases de datos, se podría conformar el conjunto de datos deseado.
 
@@ -90,20 +90,20 @@ El principal desafío era que no todos los productos comprados registrados en Am
 	\item $151$ K secuencias de interacciones
 \end{enumerate}
 
-\subsection{Preparación de Datos}
+\section{Preparación de Datos}
 
 Una vez descargados los datos se cargan desde los archivos \texttt{All\_Beauty.json} y \texttt{meta\_All\_Beauty.json} que contienen las interacciones de los usuarios y la información de los productos, respectivamente. Esta información es almacenada en \texttt{DataFrame} de la biblioteca de \texttt{pandas}, estructura de datos \'util para la manipulaci\'on de datos tabulares.
 
 Las secuencias son listas de reviews hechas por un usuario. Para conformarlas se extraen datos de la tabla de las interacciones, se agrupan por el id del usuario \texttt{userid} y se ordenan cronol\'ogicamente.
 
-Los datos se cargan desde un archivo CSV que contiene las características de los productos (\texttt{emb.csv}) y un archivo JSON que contiene secuencias de interacciones de usuarios (\texttt{seq.json}). Cada secuencia representa un historial de productos con los que un usuario ha interactuado. \todo{ajustar}
+Los datos se cargan desde un archivo CSV que contiene las características de los productos (\texttt{emb.csv}) y un archivo JSON que contiene secuencias de interacciones de usuarios (\texttt{seq.json}). Cada secuencia representa un historial de productos con los que un usuario ha interactuado. 
 
-Las redes neuronales recurrentes necesitan que las entradas tengan la misma dimensión. Dado que las secuencias de interacciones de los usuarios pueden variar en longitud, se aplica un proceso de \textit{padding} para normalizar estas secuencias a una longitud fija. Esto asegura que todas las secuencias tengan la misma longitud antes de ser procesadas por la red neuronal. \todo{agregar el proceso de padding de agregar 0s}
+Las redes neuronales recurrentes necesitan que las entradas tengan la misma dimensión. Dado que las secuencias de interacciones de los usuarios pueden variar en longitud, se aplica un proceso de \textit{padding} para normalizar estas secuencias a una longitud fija. Esto asegura que todas las secuencias tengan la misma longitud antes de ser procesadas por la red neuronal.
 
 A partir de las secuencias, se generan los conjuntos de entrenamiento y prueba. Cada secuencia $X$ en el conjunto de datos contiene 3 elementos, los dos primeros se entran a la red, y el tercero sería la salida ideal (predicción).
 
-\subsection{Construcción del Modelo}
-	En este trabajo, se implementan dos enfoques para abordar la solución del problema. El primer enfoque (A) aplica la solución propuesta por \todo{Citar autor/referencia}, mientras que el segundo enfoque (B) representa una propuesta novedosa desarrollada en este estudio. A continuación, se analizan ambos enfoques.
+\section{Construcción de los Modelos}
+	En este trabajo, se implementan dos enfoques para abordar la solución del problema. El primer enfoque (A) aplica la solución propuesta por \cite{hidasi2016session}, mientras que el segundo enfoque (B) representa una propuesta novedosa desarrollada en este estudio. A continuación, se analizan ambos enfoques.
 	
 	Para la implementación de ambos modelos, se utilizó la biblioteca TensorFlow, que es un referente en el desarrollo de modelos de Aprendizaje Automático y ofrece facilidades para la construcción de redes neuronales.
 	
@@ -190,7 +190,7 @@ Antes de llegar a la concepción final del modelo, se consideraron varias modifi
 
 \section{Conclusión}
 
-En este trabajo se entrenaron varias implementaciones de redes neuronales recurrentes para conformar un sistema de recomendaciones secuencial de productos de bellezas a usuarios basadas en sus interacciones. Aunque los resultados de los modelos implementados no fueron nada buenos con respecto a muchos de los trabajos similares existentes \cite{chung2014empirical, tang2018personalized,hidasi2016session} el sistema de recomendación recomienda artículos que empíricamente el equipo considera que pueden interesarles según las compras de prueba que efectuaron.
+En este trabajo se entrenaron varias implementaciones de redes neuronales recurrentes para conformar un sistema de recomendaciones secuencial de productos de bellezas a usuarios basadas en sus interacciones. Aunque los resultados de los modelos implementados no fueron nada buenos con respecto a muchos de los trabajos similares existentes \cite{hidasi2016session,chung2014empirical,tang2018personalized} el sistema de recomendación recomienda artículos que empíricamente el equipo considera que pueden interesarles según las compras de prueba que efectuaron.
 
 Es muy importante destacar que este proyecto no solo consistió únicamente en la creación del modelo de ML, sino en todo el proceso entero: desde la construcción y limpieza de los conjuntos de datos así, como la idea de la propuesta innovadora, como el modelado de cada red neuronal. Por lo tanto, sirvió también para ganar experiencias en la construcción de sistemas de recomendación, y comprender aún más lo tan variado que son los sistemas de recuperación de información.
 
