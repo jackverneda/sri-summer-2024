@@ -1,25 +1,29 @@
 \documentclass[runningheads]{llncs}
+\usepackage[spanish]{babel}
 \usepackage{todonotes}
 \usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage{url}
 \usepackage{hyperref} % Paquete para enlaces clicables
-\usepackage[spanish]{babel}
 \usepackage{array}
 \usepackage{subcaption}
 
+\newcommand{\keywords}[1]{\\ \\ \textbf{Palabras clave:} #1}
 \begin{document}
 
 \title{Sistema de Recomendación Secuencial usando Redes Neuronales Recursivas}
 \author{Jackson Vera Pineda \\ Kevin Manzano Rodríguez \\ Roger Fuentes Rodríguez}
 \institute{\url{https://github.com/jackverneda/sri-summer-2024}}
 
+
+\selectlanguage{spanish}
 \maketitle
 
 \begin{abstract}
 Este informe describe la implementación de un sistema de recomendación secuencial basado en redes neuronales recurrentes (RNN) utilizando capas LSTM (Long Short-Term Memory) y GRU (Gated Recurrent Units) haciendo uso además de modelos de lenguaje para capturar la semántica de los productos en embeddings. Este sistema tiene como objetivo predecir el siguiente producto en el que un usuario podría estar interesado, basándose en sus interacciones anteriores.
 \keywords{Recomendación secuencial, Redes Neuronales Recursivas, LSTM, GRU, Deep Learning}
 \end{abstract}
+
 
 \section{Introducción}
 
@@ -35,13 +39,13 @@ El caso ficticio trata sobre una tienda online de cosméticos que requiere un si
 
 \section{Propuesta de la Solución}
 
-Entre las soluciones más destacadas para modelar problemas de recomendación secuencial se encuentran: Modelos Basados en Redes Neuronales Recurrentes (RNNs), Modelos de Atención, Modelos Basados en Grafos y Modelos de Aprendizaje por Refuerzo.
+Entre las soluciones más destacadas para modelar problemas de recomendación secuencial se encuentran: Modelos Basados en Redes Neuronales Recurrentes (RNNs), Modelos de Atención \cite{kang2018self}, Modelos Basados en Grafos \cite{escamillasistema} y Modelos de Aprendizaje por Refuerzo \cite{ali2024analyzing}.
 
 En particular, los Modelos Basados en Redes Neuronales Recurrentes han demostrado ser altamente eficaces para capturar las dependencias temporales en secuencias de datos, lo que los convierte en una opción adecuada para sistemas de recomendación secuencial \cite{goodfellow2016deep}. Un ejemplo notable es el trabajo de Hidasi et al., donde se emplean RNNs para recomendaciones basadas en sesiones \cite{hidasi2016session}. Este enfoque utiliza variantes como Gated Recurrent Units (GRU) para mejorar la precisión de las recomendaciones a partir del historial de interacciones de los usuarios. Además, estudios empíricos han demostrado que las GRU pueden superar en rendimiento a las LSTM en ciertos contextos de modelado secuencial \cite{chung2014empirical}.
 
 En este trabajo, proponemos un enfoque similar al de Hidasi et al. \cite{hidasi2016session}, pero con varias mejoras. La principal diferencia radica en que, en lugar de usar directamente el ID del producto como entrada a la red neuronal, proponemos transformarlo en un vector de mayor dimensión dentro de un espacio de productos. En este espacio, las relaciones implícitas entre productos se representan mediante la cercanía de los vectores; es decir, cuanto menor sea la distancia entre dos vectores, mayor será la relación entre los productos que representan.
 
-Para la problemática de este trabajo, la semántica de este espacio vectorial está determinada por los nombres de los productos, lo que permite que se asemeje al lenguaje natural. Por lo tanto bastará con seleccionar un Modelo de Embeddings entrenados para transformar oraciones de lenguaje natural a vectores numéricos de alguna dimensión.
+Para la problemática de este trabajo, la semántica de este espacio vectorial está determinada por los nombres de los productos, lo que permite que se asemeje al lenguaje natural. Por lo tanto bastará con seleccionar un Modelo de Embeddings entrenado para transformar oraciones de lenguaje natural a vectores numéricos de alguna dimensión.
 
 Este enfoque se distingue ligeramente de otros trabajos como \cite{chung2014empirical,tang2018personalized}, donde los embeddings de los IDs de los productos se generan dentro de la red neuronal en las primeras capas, comúnmente denominadas Capas de Embeddings. En teoría, este enfoque permite que la red neuronal ajuste el espacio de productos de acuerdo a las características de los datos de entrenamiento, lo que resulta en un espacio con una semántica implícita, inducida por la red y que no es directamente interpretable en relación con el problema real.
 
@@ -49,7 +53,7 @@ En contraste, la propuesta de utilizar un modelo de embeddings preexistente perm
 
 Todo sistema de recomendación debe ser evaluado para determinar su efectividad a priori. Dado que la solución propuesta incorpora ideas innovadoras basadas en enfoques ya conocidos, se implementará también una solución basada en uno de estos enfoques tradicionales. Además de emplear métricas reconocidas, otra forma de evaluar el modelo propuesto será mediante la comparación directa con esta implementación adicional.
 
-Además este tipo de problemas se trata como un problema de clasificación donde la salida de la red neuronal es un vector de probabilidades cuya dimensión es la cantidad de productos pero, para una cantidad grande de datos se hace costoso el computo. Por tanto en el presente se propone el uso de una regresión porque es más liviana con el riesgo de que el vector resultante no exista como producto, y sea necesario buscar el más cercano.
+Además este tipo de problemas se trata como un problema de clasificación (viéndose cada producto como una categoría) donde la salida de la red neuronal es un vector de probabilidades de cada producto de ser el proximo en la secuencia, cuya dimensión es la cantidad de productos pero, para una cantidad grande de datos se hace costoso el cómputo. Por tanto en el presente se propone el tratarlo como un problema de regresión, es decir, estimar cómo luce el próximo elemento (con el riesgo de que el vector resultante no exista como producto, y sea necesario buscar el más cercano) y de esta forma la dimensión del problema no depende de la cantidad de productos.
 
 La implementación de la solución involucró múltiples etapas de desarrollo que inicialmente siguieron un enfoque lineal. Sin embargo, a medida que el proyecto avanzaba, fue necesario volver a etapas anteriores para realizar ajustes y mejoras. A continuación, se describen en detalle cada una de estas etapas.
 
@@ -63,9 +67,9 @@ El Conjunto B, compuesto por secuencias de interacciones usuario-producto, se ba
 
 \subsection{Conjunto A}
 
-Aunque era posible crear un conjunto de datos artificial para esta problemática, el equipo decidió trabajar con datos reales de una entidad existente para familiarizarse con la calidad de los datos en escenarios más cercanos a la realidad. Tras una búsqueda exhaustiva, y dado que los datos de mayor calidad suelen ser de pago o de acceso restringido, se optó por utilizar los datos públicos disponibles de productos de Amazon, encontrados en el sitio Amazon Reviews 2023 \cite{amazonreviews}. Este recurso contiene información sobre productos de Amazon y las revisiones que los usuarios han hecho a algunos de ellos, con datos disponibles de los años 2023, 2018, 2014 y 2013.
+Aunque era posible crear un conjunto de datos artificial para esta problemática, el equipo decidió trabajar con datos reales de una entidad existente para familiarizarse con la calidad de los datos en escenarios más cercanos a la realidad. Tras una búsqueda exhaustiva, y dado que los datos de mayor calidad suelen ser de pago o de acceso restringido, se optó por utilizar los datos públicos disponibles de productos de Amazon, encontrados en el sitio Amazon Reviews 2023 \cite{amazon_reviews_2023}. Este recurso contiene información sobre productos de Amazon y las revisiones que los usuarios han hecho a algunos de ellos, con datos disponibles de los años 2023, 2018, 2014 y 2013.
 
-Para construir el sistema de recomendación, era necesario contar con datos válidos para entrenar el algoritmo de Machine Learning, especialmente historiales de interacciones de usuarios con productos. Debido a esto, las revisiones de usuarios sobre productos que habían comprado se utilizaron como una representación de los historiales de interacciones. Es importante tener en cuenta que el uso de estos datos implica ciertos sesgos, basados en las siguientes suposiciones realizadas por el equipo:
+Para construir el sistema de recomendación, era necesario contar con datos válidos , especialmente historiales de interacciones de usuarios con productos. Debido a esto, las revisiones de usuarios sobre productos que habían comprado se utilizaron como una representación de los historiales de interacciones. Es importante tener en cuenta que el uso de estos datos implica ciertos sesgos, basados en las siguientes suposiciones realizadas por el equipo:
 \begin{enumerate}
 	\item No todos los usuarios que compran productos dejan revisiones, lo que significa que hay una gran cantidad de información que no está disponible en este conjunto de datos.
 	\item Un usuario que compra varios productos podría dejar revisiones solo para algunos de ellos, resultando en un historial incompleto de las interacciones del usuario con los productos. En otras palabras, las secuencias de interacciones de cada usuario podrían estar incompletas.
@@ -80,30 +84,24 @@ A pesar de estos posibles sesgos y limitaciones, se decidió utilizar este conju
 
 \subsection{Conjunto B}
 
-Para mejorar la calidad de los datos, se utilizó Amazon Beauty Products, un conjunto de datos de acceso libre disponible en la red social de analistas de datos Kaggle \cite{amazonsales}. Este conjunto contiene registros de más de 2 millones de compras de productos de belleza en Amazon, proporcionando interacciones usuario-producto basadas en historiales de compra, lo que representa información más valiosa y completa en comparación con la obtenida en el Conjunto A.
+Para mejorar la calidad de los datos, se utilizó Amazon Beauty Products, un conjunto de datos de acceso libre disponible en la red social de analistas de datos Kaggle \cite{satrap_2021}. Este conjunto contiene registros de más de 2 millones de compras de productos de belleza en Amazon, proporcionando interacciones usuario-producto basadas en historiales de compra, lo que representa información más valiosa y completa en comparación con la obtenida en el Conjunto A.
 
 No obstante, los datos de Amazon Beauty Products no incluyen los nombres de los productos, así como otros detalles que estaban presentes en el Conjunto A. Sin embargo, cada producto tiene su ID de Amazon, lo que permite complementar la información utilizando la base de datos Amazon Reviews 2023. Teóricamente, al combinar ambas bases de datos, se podría conformar el conjunto de datos deseado.
 
 El principal desafío era que no todos los productos comprados registrados en Amazon Beauty Products aparecían en la categoría All Beauty de Amazon Reviews 2023, lo que obligó a recurrir a otras categorías y a datos de otros años dentro de esta última base de datos. Aunque esto permitió encontrar más coincidencias, no fue posible recuperar el nombre de todos los productos comprados en la base de datos Amazon Beauty Products. Sin embargo, se lograron obtener:
-\begin{enumerate}
+\begin{itemize}
 	\item $423$ K compras
 	\item $151$ K secuencias de interacciones
-\end{enumerate}
+\end{itemize}
 
 \section{Preparación de Datos}
 
-Una vez descargados los datos se cargan desde los archivos \texttt{All\_Beauty.json} y \texttt{meta\_All\_Beauty.json} que contienen las interacciones de los usuarios y la información de los productos, respectivamente. Esta información es almacenada en \texttt{DataFrame} de la biblioteca de \texttt{pandas}, estructura de datos \'util para la manipulaci\'on de datos tabulares.
+Una vez descargados los datos, se cargan desde archivos en formato \texttt{JSON} y \texttt{CSV} que contienen las interacciones de los usuarios y las características de los productos, respectivamente. Estos datos se almacenan en estructuras de \texttt{pandas}.
 
-Las secuencias son listas de reviews hechas por un usuario. Para conformarlas se extraen datos de la tabla de las interacciones, se agrupan por el id del usuario \texttt{userid} y se ordenan cronol\'ogicamente.
-
-Los datos se cargan desde un archivo CSV que contiene las características de los productos (\texttt{emb.csv}) y un archivo JSON que contiene secuencias de interacciones de usuarios (\texttt{seq.json}). Cada secuencia representa un historial de productos con los que un usuario ha interactuado. 
-
-Las redes neuronales recurrentes necesitan que las entradas tengan la misma dimensión. Dado que las secuencias de interacciones de los usuarios pueden variar en longitud, se aplica un proceso de \textit{padding} para normalizar estas secuencias a una longitud fija. Esto asegura que todas las secuencias tengan la misma longitud antes de ser procesadas por la red neuronal.
-
-A partir de las secuencias, se generan los conjuntos de entrenamiento y prueba. Cada secuencia $X$ en el conjunto de datos contiene 3 elementos, los dos primeros se entran a la red, y el tercero sería la salida ideal (predicción).
+ Las secuencias de interacciones, que consisten en listas de reseñas de productos hechas por usuarios, se agrupan por ID de usuario y se ordenan cronológicamente. Como las redes neuronales recurrentes requieren entradas de longitud fija, se aplica un proceso de \textit{padding} para normalizar las secuencias. Luego, estas secuencias se dividen en conjuntos de entrenamiento y prueba, donde los dos primeros elementos de cada secuencia se usan como entrada y el tercero como salida deseada.
 
 \section{Construcción de los Modelos}
-	En este trabajo, se implementan dos enfoques para abordar la solución del problema. El primer enfoque (A) aplica la solución propuesta por \cite{hidasi2016session}, mientras que el segundo enfoque (B) representa una propuesta novedosa desarrollada en este estudio. A continuación, se analizan ambos enfoques.
+	En este trabajo, se implementan dos enfoques para abordar la solución del problema. El primer enfoque (Modelo I) aplica la solución propuesta por \cite{hidasi2015session}, mientras que el segundo enfoque (Modelo II) representa una propuesta novedosa desarrollada en este estudio. A continuación, se analizan ambos enfoques.
 	
 	Para la implementación de ambos modelos, se utilizó la biblioteca TensorFlow, que es un referente en el desarrollo de modelos de Aprendizaje Automático y ofrece facilidades para la construcción de redes neuronales.
 	
@@ -129,15 +127,21 @@ A partir de las secuencias, se generan los conjuntos de entrenamiento y prueba. 
 
 \subsection{Entrenamiento y Evaluación de los Modelos}
 
-	El \textbf{Modelo I} se entrena utilizando un conjunto de datos compuesto por secuencias de identificadores de productos (IDs). Durante el entrenamiento, los pesos del modelo se ajustan para minimizar la pérdida categórica utilizando \textit{sparse categorical crossentropy}. La métrica empleada para evaluar el rendimiento es la \textit{accuracy}.
+	El \textbf{Modelo I} se entrena utilizando un conjunto de datos compuesto por secuencias de identificadores de productos (IDs). Durante el entrenamiento, los pesos del modelo se ajustan para minimizar la pérdida categórica utilizando \textit{entropía cruzada categórica dispersa}. La métrica empleada para evaluar el rendimiento es la \textit{precisión}.
 
-	En cambio el \textbf{Modelo II} entrena utilizando un conjunto de datos compuesto por secuencias de \textit{embeddings}, ajustando los pesos del modelo para minimizar la pérdida categórica utilizando el error cuadrático medio (MSE). Dado que la red neuronal ahora funciona en un entorno de regresión, fue necesario definir una función de \textit{accuracy} diferente que describa adecuadamente el rendimiento del modelo, la cual se detallará más adelante.
+	En cambio el \textbf{Modelo II} entrena utilizando un conjunto de datos compuesto por secuencias de \textit{embeddings}, ajustando los pesos del modelo para minimizar la pérdida categórica utilizando el error cuadrático medio (MSE). Dado que la red neuronal ahora funciona en un entorno de regresión, fue necesario definir una función de \textit{precisión} diferente que describa adecuadamente el rendimiento del modelo, la cual se detallará más adelante.
     
     Una vez finalizados los entrenamientos, ambos modelos se evalúan en conjuntos de prueba independientes para medir su capacidad de generalización. Las métricas de rendimiento utilizadas incluyen la pérdida (\textit{loss}) y una medida de precisión (\textit{accuracy}), adaptada para el contexto de regresión. Es importante destacar que, debido a las diferencias en la naturaleza de los modelos, las magnitudes de la pérdida no son directamente comparables entre sí. Por esta razón, la comparación entre ambos se realiza utilizando la métrica de \textit{accuracy}.
+    
+\subsection{Consideraciones}
+ 	Como fue planteado anteriormente, la forma en la que fue concebida la solución propuesta por el siguiente trabajo (Modelo II) puede tener la inconveniente de que la salida sea un vector no existente entre los embeddings (productos reales). Para abordar esta problemática se recurre al algoritmo de los $k$ vecinos más cercanos (KNN por sus siglas en inglés), entrenado con las representaciones de los productos y para un valor de $k=10$. De esta forma para cada salida del modelo tenemos 10 vectores probables, y esto constituye nuestra recomendación final al usuario.
+ 	
+ 	Para cuantificar el desempeño del modelo dadas estas condiciones, se define como precisión, a la division de $\frac{m}{N}$ donde $N$ es la cantidad de predicciones, y $m$ la cantidad de veces que el producto siguiente en la secuencia, está dentro de la recomendación (es uno de los 10 vecinos predichos).
+
 
 \section{Resultados}
 
-Después de entrenar y evaluar ambos modelos con los datos disponibles, los resultados cuantitativos fueron insatisfactorios. En términos de precisión (\textit{accuracy}), los modelos I y II obtuvieron valores de 0.01570 y 0.01979, respectivamente, lo que sugiere una ligera ventaja del modelo propuesto en comparación con el modelo basado en la bibliografía. Sin embargo, dado que la diferencia en el rendimiento es casi imperceptible, estos resultados no deben considerarse concluyentes.
+Después de entrenar y evaluar ambos modelos con los datos disponibles, los resultados cuantitativos fueron insatisfactorios. En términos de precisión (\textit{accuracy}), los modelos I y II obtuvieron valores de 0.01570 y 0.01979, respectivamente, lo que sugiere una ligera ventaja del modelo propuesto en comparación con el modelo propuesto por B. Hidasi y colaboradores \cite{hidasi2015session}. Sin embargo, dado que la diferencia en el rendimiento es casi imperceptible, estos resultados no deben considerarse concluyentes.
 
 Varios factores podrían explicar estos resultados. En el caso del modelo I, es posible que no haya captado la complejidad de los datos (\textit{underfitting}), como se observa en la figura \ref{fig:imagen_completa}, donde la función de pérdida disminuye durante el entrenamiento, pero no muestra la misma tendencia en la validación. Por otro lado, el modelo II parece haber sufrido de sobreajuste a partir de la tercera iteración, a pesar de los esfuerzos por mitigar este problema mediante técnicas de \textit{dropout}.
 
@@ -145,14 +149,14 @@ Varios factores podrían explicar estos resultados. En el caso del modelo I, es 
 	\centering
 	\begin{subfigure}[b]{0.45\textwidth}
 		\centering
-		\includegraphics[width=\textwidth]{clasica.png}
+		\includegraphics[width=\textwidth]{assets/clasica.png}
 		\caption{Modelo Clásico}
 		\label{fig:sub1}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}[b]{0.45\textwidth}
 		\centering
-		\includegraphics[width=\textwidth]{propuesta.png}
+		\includegraphics[width=\textwidth]{assets/propuesta.png}
 		\caption{Modelo Propuesto}
 		\label{fig:sub2}
 	\end{subfigure}
@@ -167,7 +171,7 @@ Antes de llegar a la concepción final del modelo, se consideraron varias modifi
 	\centering
 	\begin{tabular}{|c|p{2.5cm}|c|c|p{1.8cm}|p{2.8cm}|}
 		\hline
-		\textbf{Versión} & \textbf{Arquitectura} & \textbf{Epochs (e)} & \textbf{Batch Size (b)} & \textbf{Test Loss \newline (MSE)} & \textbf{Test Accuracy / \newline MAE / MSE} \\ \hline
+		\textbf{Versión} & \textbf{Arquitectura} & \textbf{Épocas (e)} & \textbf{Tamaño del Lote (b)} & \textbf{Prueba de Pérdida \newline (MSE)} & \textbf{ Accuracy / \newline MAE / MSE de Prueba} \\ \hline
 		1 & SimpleRNN(128) & 20 & 20 & 6.2698e-05 & 0.00092908 \\ \hline
 		2 & SimpleRNN(512) & 20 & 20 & 0.00034988 & 11416425.0 \\ \hline
 		3 & SimpleRNN(512) & 10 & 15 & 0.00042967 & 0.00930194 \\ \hline
@@ -190,7 +194,7 @@ Antes de llegar a la concepción final del modelo, se consideraron varias modifi
 
 \section{Conclusión}
 
-En este trabajo se entrenaron varias implementaciones de redes neuronales recurrentes para conformar un sistema de recomendaciones secuencial de productos de bellezas a usuarios basadas en sus interacciones. Aunque los resultados de los modelos implementados no fueron nada buenos con respecto a muchos de los trabajos similares existentes \cite{hidasi2016session,chung2014empirical,tang2018personalized} el sistema de recomendación recomienda artículos que empíricamente el equipo considera que pueden interesarles según las compras de prueba que efectuaron.
+En este trabajo se entrenaron varias implementaciones de redes neuronales recurrentes para conformar un sistema de recomendaciones secuencial de productos de bellezas a usuarios basadas en sus interacciones. Aunque los resultados de los modelos implementados no fueron nada buenos con respecto a muchos de los trabajos similares existentes \cite{hidasi2015session,chung2014empirical,tang2018personalized} el sistema de recomendación recomienda artículos que empíricamente el equipo considera que pueden interesarles según las compras de prueba que efectuaron.
 
 Es muy importante destacar que este proyecto no solo consistió únicamente en la creación del modelo de ML, sino en todo el proceso entero: desde la construcción y limpieza de los conjuntos de datos así, como la idea de la propuesta innovadora, como el modelado de cada red neuronal. Por lo tanto, sirvió también para ganar experiencias en la construcción de sistemas de recomendación, y comprender aún más lo tan variado que son los sistemas de recuperación de información.
 
@@ -202,34 +206,7 @@ Para futuros trabajos similares a este se sugieren las siguientes recomendacione
 	\item Considerar el entrenamiento de redes neuronales con un mayor número de nodos por capa para capturar de manera más efectiva las complejidades en los datos. Dado que esto requiere un considerable poder de cómputo, se recomienda utilizar plataformas en la nube más potentes que el plan gratuito de Google Colab.
 \end{itemize}
 
-\begin{thebibliography}{9}
-
-\bibitem{hidasi2016session} 
-Balázs Hidasi, Alexandros Karatzoglou, Linas Baltrunas y Domonkos Tikk.
-\textit{Session-based Recommendations with Recurrent Neural Networks}. 
-Proceedings of the 4th International Conference on Learning Representations (ICLR 2016). Recuperado de \url{https://arxiv.org/abs/1511.06939}
-
-\bibitem{wu2017recurrent}
-Wu, C. Y., Ahmed, A., Beutel, A., Smola, A. J., \& Jing, H. (2017, February). Recurrent recommender networks. In Proceedings of the tenth ACM international conference on web search and data mining (pp. 495-503).
-
-\bibitem{goodfellow2016deep} 
-Ian Goodfellow, Yoshua Bengio y Aaron Courville.
-\textit{Deep Learning}. MIT Press, 2016. Disponible en \url{https://www.deeplearningbook.org/}
-
-\bibitem{chung2014empirical} 
-Junyoung Chung, Çaglar Gülçehre, KyungHyun Cho y Yoshua Bengio.
-\textit{Empirical Evaluation of Gated Recurrent Neural Networks on Sequence Modeling}. arXiv preprint arXiv:1412.3555, 2014. Recuperado de \url{https://arxiv.org/abs/1412.3555}
-
-\bibitem{tang2018personalized}
-Tang, J., \& Wang, K. (2018, February). Personalized top-n sequential recommendation via convolutional sequence embedding. In Proceedings of the eleventh ACM international conference on web search and data mining (pp. 565-573).
-
-\bibitem{amazonreviews}
-Amazon Reviews 2023. (n.d.). Amazon Reviews 2023. https://amazon-reviews-2023.github.io/
-
-\bibitem{amazonsales}
-Satrap, A. (2021). Amazon beauty product recommendation [Conjunto de datos]. Kaggle. https://www.kaggle.com/datasets/satrapankti/amazon-beauty-product-recommendation
-
-
-\end{thebibliography}
+\bibliographystyle{plain}
+\bibliography{assets/biblio.bib}
 
 \end{document}

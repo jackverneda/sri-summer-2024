@@ -1,0 +1,52 @@
+\begin{thebibliography}{1}
+
+\bibitem{amazon_reviews_2023}
+Amazon reviews 2023, 2023.
+\newblock n.d.
+
+\bibitem{ali2024analyzing}
+Hashir Ali, Ehtesham Hashmi, Sule Yayilgan~Yildirim, and Sarang Shaikh.
+\newblock Analyzing amazon products sentiment: a comparative study of machine
+  and deep learning, and transformer-based techniques.
+\newblock {\em Electronics}, 13(7):1305, 2024.
+
+\bibitem{chung2014empirical}
+Junyoung Chung, Caglar Gulcehre, KyungHyun Cho, and Yoshua Bengio.
+\newblock Empirical evaluation of gated recurrent neural networks on sequence
+  modeling.
+\newblock {\em arXiv preprint arXiv:1412.3555}, 2014.
+
+\bibitem{escamillasistema}
+Jorge~M Escamilla-Ornelas.
+\newblock Sistema de recomendaci{\'o}n h{\'\i}brido basado en grafos con
+  enfoque a art{\'\i}culos cient{\'\i}ficos.
+\newblock 2021.
+
+\bibitem{goodfellow2016deep}
+Ian Goodfellow.
+\newblock Deep learning, 2016.
+
+\bibitem{hidasi2015session}
+B~Hidasi.
+\newblock Session-based recommendations with recurrent neural networks.
+\newblock {\em arXiv preprint arXiv:1511.06939}, 2015.
+
+\bibitem{kang2018self}
+Wang-Cheng Kang and Julian McAuley.
+\newblock Self-attentive sequential recommendation.
+\newblock In {\em 2018 IEEE international conference on data mining (ICDM)},
+  pages 197--206. IEEE, 2018.
+
+\bibitem{satrap_2021}
+A.~Satrap.
+\newblock Amazon beauty product recommendation, 2021.
+\newblock Conjunto de datos.
+
+\bibitem{tang2018personalized}
+Jiaxi Tang and Ke~Wang.
+\newblock Personalized top-n sequential recommendation via convolutional
+  sequence embedding.
+\newblock In {\em Proceedings of the eleventh ACM international conference on
+  web search and data mining}, pages 565--573, 2018.
+
+\end{thebibliography}
